@@ -6,6 +6,8 @@ const users = require('../models/users');
 const handleError = require('../service/handleError');
 const handleSuccess = require('../service/handleSuccess');
 const handlePromiseError = require('../service/handlePromiseError');
+const { isAuth } = require('../service/auth');
+
 
 router.get(
   '/',
@@ -32,24 +34,19 @@ router.get(
 );
 
 router.post(
-  '/',
+  '/',isAuth,
   handlePromiseError(async (req, res, next) => {
-    const { body } = req;
-    if (!body.user || !body.content) {
-      handleError(400, 'user, content 必填', next);
+    const { content,image } = req.body;
+    if (!content) {
+      handleError(400, '貼文內容未填寫', next);
       return;
     }
-    const user = await users.findById(body.user);
-    if (user) {
       const data = await posts.create({
-        content: body.content,
-        image: body.image,
-        user: body.user,
+        content,
+        image,
+        user: req.user._id,
       });
       handleSuccess(res, data);
-    } else {
-      handleError(404, '查無此用戶 ID', next);
-    }
   })
 );
 

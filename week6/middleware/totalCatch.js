@@ -1,4 +1,5 @@
 function errorDev(err, res) {
+  console.error(err);
   res.status(err.status).send({
     status: false,
     message: err.message,
